@@ -1,5 +1,5 @@
 
-# This python script contains the functions used in data pre-processing.
+# This python script contains the functions used in the notebook.
 
 #imports
 
@@ -10,6 +10,63 @@ from difflib import get_close_matches
 import matplotlib.pyplot as plt
 
 
+###------------------------------------------------------------------------------------------------------------###
+###--------------------------- FUNCTIONS USED FOR DATA UNDERSTANDING: -----------------------------------------###
+###------------------------------------------------------------------------------------------------------------###
+
+def color_pvalues(val):
+
+    """
+    Applies color formatting to p-values for visualization in tables.
+
+    The function returns a string that can be used with pandas 'DataFrame.style' to visually indicate statistical significance:
+    - Green background if p-value < 0.05, indicating a significant association.
+    - Red background if p-value >= 0.05, indicating no significant association.
+    - Black text color and a black border are applied in both cases.
+
+    Parameters
+    ----------
+    val : float
+        The p-value to be evaluated.
+
+    Returns
+    -------
+    str
+        A string that can be used to style a pandas DataFrame cell.
+    """
+
+    if val < 0.05:
+        return 'background-color: lightgreen; color:black; border: 1px solid black;'
+    else:
+        return 'background-color: lightcoral; color:black; border: 1px solid black;'
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def color_cramervalues(val):
+
+    """
+    Applies color formatting to Cramér's V values for visualization in tables.
+
+    The function returns a string that can be used with pandas 'DataFrame.style' to visually indicate the strength of association between categorical variables:
+    - Green background if Cramér's V > 0.6, indicating a strong association.
+    - Red background if Cramér's V <= 0.6, indicating a weak or moderate association.
+    - Black text color and a black border are applied in both cases.
+
+    Parameters
+    ----------
+    val : float
+        The Cramér's V value to be evaluated.
+
+    Returns
+    -------
+    str
+        A string that can be used to style a pandas DataFrame cell.
+    """
+
+    if val > 0.6:
+        return 'background-color: lightgreen; color:black; border: 1px solid black;'
+    else:
+        return 'background-color: lightcoral; color:black; border: 1px solid black;'
 
 
 ###------------------------------------------------------------------------------------------------------------###
