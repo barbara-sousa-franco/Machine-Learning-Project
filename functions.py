@@ -1,13 +1,17 @@
 
-# This python script contains the functions used in the notebook.
+# This python script contains the all the general functions used in the notebook.
 
-#imports
+# Imports
 
 import pandas as pd
 import numpy as np 
-from fuzzywuzzy import fuzz
-from difflib import get_close_matches
 import matplotlib.pyplot as plt
+
+# Import fuzzywuzzy to correct the typos in 'Brand', 'fuelType' snd 'transmission'
+from fuzzywuzzy import fuzz
+
+# Import get_close_matches to identify and group similar words for typo correction in 'model'
+from difflib import get_close_matches
 
 
 ###------------------------------------------------------------------------------------------------------------###
