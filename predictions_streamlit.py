@@ -113,7 +113,7 @@ if method == "Load a csv file":
 
             except Exception as e:
                 st.error("An error occurred: " + str(e))
-                st.write(f"Error details: {str(e)}")
+                
 
 
 if method == "Manually write the information":
@@ -158,9 +158,6 @@ if method == "Manually write the information":
         try:
             df_observation = pd.DataFrame([feature_values])
 
-            # Apply preprocessing: convert impossible values to NaN and standardize format
-            df_observation = preprocess_data(df_observation)
-
             # predict price
             prediction = model.predict(df_observation)[0] # with [0] we select only the value, otherwise it would be an np.array just with the value
 
@@ -168,4 +165,4 @@ if method == "Manually write the information":
 
         except Exception as e:
             st.error("An error occurred: " + str(e))
-            st.write(f"Error details: {str(e)}")
+            
