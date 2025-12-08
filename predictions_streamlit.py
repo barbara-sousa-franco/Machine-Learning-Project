@@ -158,7 +158,7 @@ if method == "Manually write the information":
             value = st.text_input(feat, value="")
             # Process immediately: strip and uppercase, or set to None if empty
             if value.strip() == "":
-                value = np.nan
+                value = None  # Use None instead of np.nan to keep dtype as object
             else:
                 value = value.strip().upper()
 
@@ -173,8 +173,9 @@ if method == "Manually write the information":
             # The pipeline was trained with a specific column order
             df_observation = df_observation[necessary_columns]
             st.dataframe(df_observation)
+
             # predict price
-            prediction = model.predict(df_observation)[0] # with [0] we select only the value, otherwise it would be an np.array just with the value
+            prediction = model.predict(df_observation)[0] # with [0] we select only the value, otherwise it would be an np.array just with t            st.dataframe(df_observation)he value
 
             st.success(f"Predicted price: ${prediction:.2f}")
 
