@@ -424,7 +424,7 @@ def build_model_mappings(df):
     - mapping_3: Uses Brand and Fuel Type.
     - mapping_2: Uses Brand and Transmission.
     - mapping_1: Uses Brand and Engine Size.
-    - mapping_0: Uses Brand.
+    - mapping_0: Uses Brand only.
 
     Parameters
     ----------
@@ -434,7 +434,7 @@ def build_model_mappings(df):
     Returns
     -------
     mapping_5, mapping_4, mapping_3, mapping_2, mapping_1, mapping_0 : dict
-        Five dictionaries mapping combinations of features to the most frequent model name.
+        Six dictionaries mapping combinations of features to the most frequent model name.
     """
 
     mapping_5 = (
@@ -465,8 +465,8 @@ def build_model_mappings(df):
 
     mapping_0 = (
         df.dropna(subset=['Brand_cleaned', 'model_cleaned'])
-        .groupby(['Brand_cleaned'])['model_cleaned']
-        .agg(lambda x: x.mode().iloc[0]).to_dict()
+          .groupby(['Brand_cleaned'])['model_cleaned']
+          .agg(lambda x: x.mode().iloc[0]).to_dict()
     )
 
     return mapping_5, mapping_4, mapping_3, mapping_2, mapping_1, mapping_0
@@ -481,7 +481,7 @@ def impute_model_flexible(row, maps):
     The function attempts to fill missing model values in a flexible way:
     1. It first tries the most specific mapping (mapping_5) that uses Brand, Fuel Type, Engine Size, and Transmission.
     2. If no match is found, it proceeds to less detailed mappings in the following order:
-       mapping_4, mapping_3, mapping_2, mapping_1, mapping_0.
+       mapping_4, mapping_3, mapping_2, mapping_1, mapping_0 (Brand only).
     3. If no mapping contains a match, the original model value is returned.
 
     Parameters
@@ -490,7 +490,7 @@ def impute_model_flexible(row, maps):
         Represents an individual row in a pandas DataFrame.
     
     maps : tuple
-        A tuple containing five dictionaries (mapping_5, mapping_4, mapping_3, mapping_2, mapping_1).
+        A tuple containing six dictionaries (mapping_5, mapping_4, mapping_3, mapping_2, mapping_1, mapping_0).
 
     Returns
     -------
@@ -506,7 +506,7 @@ def impute_model_flexible(row, maps):
     key3 = (row['Brand_cleaned'], row['fuelType_cleaned'])
     key2 = (row['Brand_cleaned'], row['transmission_cleaned'])
     key1 = (row['Brand_cleaned'], row['engineSize'])
-    key0 = (row['Brand_cleaned'])
+    key0 = (row['Brand_cleaned'],)
 
     if pd.isna(row['model_cleaned']):
         if key5 in mapping_5: return mapping_5[key5]
