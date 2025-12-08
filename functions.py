@@ -1,4 +1,5 @@
 
+<<<<<<< HEAD
 # This python script contains the all the general functions used in the notebook.
 
 # Imports
@@ -71,6 +72,18 @@ def color_cramervalues(val):
         return 'background-color: lightgreen; color:black; border: 1px solid black;'
     else:
         return 'background-color: lightcoral; color:black; border: 1px solid black;'
+=======
+# This python script contains the functions used in data pre-processing.
+
+#imports
+
+import pandas as pd
+import numpy as np 
+from fuzzywuzzy import fuzz
+from difflib import get_close_matches
+
+
+>>>>>>> 3e329d2 (saving work before rebase)
 
 
 ###------------------------------------------------------------------------------------------------------------###
@@ -124,6 +137,10 @@ def correct_brand_w(df, brand, model):
 
 
 
+<<<<<<< HEAD
+=======
+# incluí um argumento extra (dataset) para a função não depender exatamente do X_train (este ficheiro não corre caso contrário)
+>>>>>>> 3e329d2 (saving work before rebase)
 def create_clusters(df, brand_list, column, threshold=85): 
       
     """
@@ -134,9 +151,12 @@ def create_clusters(df, brand_list, column, threshold=85):
 
     Parameters
     ----------
+<<<<<<< HEAD
     df : pandas.DataFrame
         DataFrame containing the original data.
 
+=======
+>>>>>>> 3e329d2 (saving work before rebase)
     brand_list : list
         List of strings (e.g., brand names) to be clustered.
     
@@ -293,6 +313,11 @@ def similar_models(models, threshold=0.85):
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+<<<<<<< HEAD
+=======
+# inclui model_mapping dict nos argumentos para funcionar
+# incluí lista correct_models para funcionar
+>>>>>>> 3e329d2 (saving work before rebase)
 
 def correct_column_model(lis, dict, model, similar_groups, threshold = 0.85):
 
@@ -304,12 +329,15 @@ def correct_column_model(lis, dict, model, similar_groups, threshold = 0.85):
 
     Parameters
     -----------
+<<<<<<< HEAD
     lis : List[str]
         List with all the correct models (most frequent versions in the train set).
     
     dict : Dict[str, str]
         Dictionary mapping each model in the train set to its most frequent version.
 
+=======
+>>>>>>> 3e329d2 (saving work before rebase)
     models : String
         The model name to correct.
 
@@ -1133,6 +1161,7 @@ def impute_transmission(row, maps):
     return row['transmission_cleaned']
 
 
+<<<<<<< HEAD
 ###------------------------------------------------------------------------------------------------------------###
 ###--------------------------- FUNCTIONS TO PERFORM FEATURE SELECTION: ----------------------------------------###
 ###------------------------------------------------------------------------------------------------------------###
@@ -1193,4 +1222,8 @@ def adjusted_r2 (r2,n,p):
     """
 
     return 1-(1-r2)*(n-1)/(n-p-1)
+=======
+
+
+>>>>>>> 3e329d2 (saving work before rebase)
 
