@@ -21,6 +21,9 @@ def preprocess_data(df):
     """
     df = df.copy()
     
+    # Convert None and empty strings to np.nan for all columns
+    df = df.replace({'': np.nan, None: np.nan})
+    
     # Convert impossible values to NaN for numeric features
     # Year must be <= 2020
     df.loc[df['year'] > 2020, 'year'] = np.nan
@@ -147,12 +150,11 @@ if method == "Manually write the information":
             else:
                 value = float(st.number_input(feat + ":", min_value = 0.00, step = 0.01, format = "%.2f"))
         else:
-            # For categorical features, require input (don't allow empty)
+            # For categorical features
             value = st.text_input(feat, value="")
-            # Always process as string: strip spaces and uppercase
-            # Only convert to nan if truly empty after stripping
+            # Process immediately: strip and uppercase, or set to None if empty
             if value.strip() == "":
-                value = np.nan
+                value = None
             else:
                 value = value.strip().upper()
 
