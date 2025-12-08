@@ -225,6 +225,7 @@ necessary_columns = {'Brand', 'model', 'year', 'transmission', 'mileage', 'fuelT
 numeric_features = ['year', 'mileage', 'tax', 'mpg', 'engineSize', 'previousOwners', 'hasDamage']
 cat_features = ['Brand', 'model', 'transmission', 'fuelType']
 
+
 if method == "Load a csv file":
 
     st.subheader("Load a csv file")
@@ -251,7 +252,7 @@ if method == "Load a csv file":
                 # Apply preprocessing: convert impossible values to NaN and standardize format
                 df_processed = preprocess_data(df[list(necessary_columns)].copy())
 
-                # predict using the complete pipeline
+                # predict price
                 pred = model.predict(df_processed)
                 st.success("Predictions completed successfully!")
                 
