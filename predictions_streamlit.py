@@ -22,7 +22,7 @@ def preprocess_data(df):
     df = df.copy()
     
     # Convert None and empty strings to np.nan for all columns
-    df = df.replace({'': np.nan, None: np.nan})
+    df = df.replace({None: np.nan, "": np.nan})
     
     # Convert impossible values to NaN for numeric features
     # Year must be <= 2020
@@ -56,9 +56,7 @@ def preprocess_data(df):
     for col in categorical_cols:
         if col in df.columns:
             # Only apply string operations to non-NaN values
-            df[col] = df[col].apply(
-                lambda x: str(x).strip().upper() if pd.notna(x) and x != '' else np.nan
-            )
+            df[col] = df[col].apply(lambda x: str(x).strip().upper() if pd.notna(x) else np.nan)
     
     return df
 
@@ -140,21 +138,21 @@ if method == "Manually write the information":
             elif feat == 'year':
                 value = int(st.number_input("Year:",min_value = 1990, max_value = 2020, step = 1))
             elif feat == 'engineSize':
-                value = float(st.number_input("Engine Size:",min_value = 1.00, step = 0.01, format="%.2f"))
+                value = st.number_input("Engine Size:",min_value = 1.00, step = 0.01, format="%.2f")
             elif feat == 'mpg':
-                value = float(st.number_input("MPG:",min_value = 8.00, step = 0.01, format="%.2f"))
+                value = st.number_input("MPG:",min_value = 8.00, step = 0.01, format="%.2f")
             elif feat == 'mileage':
-                value = float(st.number_input("Mileage:",min_value = 0.00, step = 0.01, format="%.2f"))
+                value = st.number_input("Mileage:",min_value = 0.00, step = 0.01, format="%.2f")
             elif feat == 'tax':
-                value = float(st.number_input("Tax:",min_value = 0.00, step = 0.01, format="%.2f"))
+                value = st.number_input("Tax:",min_value = 0.00, step = 0.01, format="%.2f")
             else:
-                value = float(st.number_input(feat + ":", min_value = 0.00, step = 0.01, format = "%.2f"))
+                value = st.number_input(feat + ":", min_value = 0.00, step = 0.01, format = "%.2f")
         else:
             # For categorical features
             value = st.text_input(feat, value="")
             # Process immediately: strip and uppercase, or set to None if empty
             if value.strip() == "":
-                value = None
+                value = np.nan
             else:
                 value = value.strip().upper()
 
@@ -166,7 +164,6 @@ if method == "Manually write the information":
             df_observation = pd.DataFrame([feature_values])
 
             # Apply preprocessing before prediction
-            df_observation = preprocess_data(df_observation)
             st.dataframe(df_observation)
 
             # predict price
