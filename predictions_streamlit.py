@@ -13,6 +13,11 @@ random_state = 42
 # Carregar modelo
 model = joblib.load("modelo_mlp_teste.pkl")
 
+# Verify model has 6 mappings (DEBUG - updated Dec 8, 2025)
+mvt_step = model.named_steps['missing value treatment']
+num_mappings = len(mvt_step.model_maps_)
+st.sidebar.write(f"🔧 Model mappings: {num_mappings}")
+
 
 def preprocess_data(df):
     """
