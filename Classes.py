@@ -377,8 +377,8 @@ class Feature_Engineering(BaseEstimator, TransformerMixin):
         # Average Car Usage
         X['AvgUsage'] = X['mileage'] / (X['carAge'] + 1)
 
-        # Car Segment based on Brand
-        X['carSegment'] = X['Brand_cleaned'].map(self.segment_)
+        # Car Segment based on Brand; unseen brands default to 'Other' to avoid NaN propagating
+        X['carSegment'] = X['Brand_cleaned'].map(self.segment_).fillna('Other')
 
         return X
 
@@ -975,8 +975,8 @@ class Feature_Engineering(BaseEstimator, TransformerMixin):
         # Average Car Usage
         X['AvgUsage'] = X['mileage'] / (X['carAge'] + 1)
 
-        # Car Segment based on Brand
-        X['carSegment'] = X['Brand_cleaned'].map(self.segment_)
+        # Car Segment based on Brand; unseen brands default to 'Other' to avoid NaN propagating
+        X['carSegment'] = X['Brand_cleaned'].map(self.segment_).fillna('Other')
 
         return X
 
