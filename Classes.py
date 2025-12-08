@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # ------------IMPORTS-----------------------------------------------------
 from sklearn.linear_model import LinearRegression, Lasso, HuberRegressor
 from sklearn.ensemble import RandomForestRegressor
@@ -597,7 +596,6 @@ class Feature_Selection(BaseEstimator, TransformerMixin):
 
 
 
-=======
 # ------------IMPORTS-----------------------------------------------------
 from sklearn.linear_model import LinearRegression, Lasso, HuberRegressor
 from sklearn.ensemble import RandomForestRegressor
@@ -1196,4 +1194,3 @@ class Feature_Selection(BaseEstimator, TransformerMixin):
 
 
 
->>>>>>> 3e329d2 (saving work before rebase)
