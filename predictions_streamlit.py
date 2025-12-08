@@ -21,7 +21,7 @@ def preprocess_data(df):
     """
     df = df.copy()
     
-    # Convert impossible values to NaN
+    # Convert impossible values to NaN for numeric features
     # Year must be <= 2020
     df.loc[df['year'] > 2020, 'year'] = np.nan
     
@@ -40,20 +40,22 @@ def preprocess_data(df):
     # Engine Size must be > 0 and >= 1
     df.loc[df['engineSize'] < 1, 'engineSize'] = np.nan
     
-    # Round year and previousOwners to whole numbers
-    df['year'] = np.floor(df['year'])
-    df['previousOwners'] = np.floor(df['previousOwners'])
+    # Round year and previousOwners to whole numbers (only for non-NaN values)
+    df['year'] = df['year'].apply(lambda x: np.floor(x) if pd.notna(x) else np.nan)
+    df['previousOwners'] = df['previousOwners'].apply(lambda x: np.floor(x) if pd.notna(x) else np.nan)
     
-    # Round numeric features to 2 decimal places
+    # Round numeric features to 2 decimal places (only for non-NaN values)
     for feat in ['mileage', 'tax', 'mpg', 'engineSize']:
-        df[feat] = df[feat].round(2)
+        df[feat] = df[feat].apply(lambda x: round(x, 2) if pd.notna(x) else np.nan)
     
-    # Preprocess categorical variables: strip spaces and uppercase
+    # Preprocess categorical variables: strip spaces and uppercase (only for non-NaN values)
     categorical_cols = ['Brand', 'model', 'fuelType', 'transmission']
     for col in categorical_cols:
         if col in df.columns:
-            df[col] = df[col].where(df[col].isna(), 
-                                    df[col].astype(str).str.strip().str.upper())
+            # Only apply string operations to non-NaN values
+            df[col] = df[col].apply(
+                lambda x: str(x).strip().upper() if pd.notna(x) and x != '' else np.nan
+            )
     
     return df
 
@@ -145,8 +147,11 @@ if method == "Manually write the information":
             else:
                 value = float(st.number_input(feat + ":", min_value = 0.00, step = 0.01, format = "%.2f"))
         else:
-            value = st.text_input(feat)
-            if value == "":
+            # For categorical features, require input (don't allow empty)
+            value = st.text_input(feat, value="")
+            # Always process as string: strip spaces and uppercase
+            # Only convert to nan if truly empty after stripping
+            if value.strip() == "":
                 value = np.nan
             else:
                 value = value.strip().upper()
@@ -157,6 +162,10 @@ if method == "Manually write the information":
     if st.button("Predict Price"):
         try:
             df_observation = pd.DataFrame([feature_values])
+
+            # Apply preprocessing before prediction
+            df_observation = preprocess_data(df_observation)
+            st.dataframe(df_observation)
 
             # predict price
             prediction = model.predict(df_observation)[0] # with [0] we select only the value, otherwise it would be an np.array just with the value
