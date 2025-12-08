@@ -3,6 +3,10 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
+# Import classes BEFORE loading the model (required for joblib deserialization)
+# Even though we don't use them directly, they need to be in the namespace
+from Classes import Categorical_Correction, Outlier_Treatment, Missing_Value_Treatment, Typecasting, Feature_Engineering, Encoder, Scaler, Feature_Selection
+
 random_state = 42
 
 
