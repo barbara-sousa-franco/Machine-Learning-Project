@@ -59,8 +59,8 @@ st.title("Predict your car's price")
 method = st.sidebar.radio("How to insert the car information",
                           ["Load a csv file", "Manually write the information"])
 
-necessary_columns = {'Brand', 'model', 'year', 'transmission', 'mileage', 'fuelType', 'tax', 'mpg', 'engineSize',
-                     'previousOwners', 'hasDamage'}
+necessary_columns = ['Brand', 'engineSize', 'model', 'transmission', 'mpg','year', 'tax', 'mileage', 'previousOwners', 'fuelType', 'hasDamage']
+
 
 numeric_features = ['year', 'mileage', 'tax', 'mpg', 'engineSize', 'previousOwners', 'hasDamage']
 cat_features = ['Brand', 'model', 'transmission', 'fuelType']
@@ -75,9 +75,9 @@ if method == "Load a csv file":
         received_columns = set(df.columns)
 
         # make sure that the file uploaded has the columns needed for the model
-        if not necessary_columns.issubset(received_columns):
+        if not set(necessary_columns).issubset(received_columns):
             st.error("The file does not contain the necessary columns")
-            st.write("Missing columns:" + str(necessary_columns - received_columns))
+            st.write("Missing columns:" + str(set(necessary_columns) - received_columns))
             st.stop()
 
         # in case the file has the needed columns and more, we only keep the necessary columns
@@ -117,7 +117,7 @@ if method == "Manually write the information":
     st.subheader("Manually write the information")
 
     # empty, single-lined data frame with columns with the names of the excepted features
-    observation = pd.DataFrame(columns = list(necessary_columns))
+    observation = pd.DataFrame(columns = necessary_columns)
 
     feature_values = {}
     st.write("Insert the values for each feature")
