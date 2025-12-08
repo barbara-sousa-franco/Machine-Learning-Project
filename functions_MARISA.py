@@ -434,7 +434,7 @@ def build_model_mappings(df):
     Returns
     -------
     mapping_5, mapping_4, mapping_3, mapping_2, mapping_1, mapping_0 : dict
-        Six dictionaries mapping combinations of features to the most frequent model name.
+        Five dictionaries mapping combinations of features to the most frequent model name.
     """
 
     mapping_5 = (
@@ -462,13 +462,15 @@ def build_model_mappings(df):
           .groupby(['Brand_cleaned', 'engineSize'])['model_cleaned']
           .agg(lambda x: x.mode().iloc[0]).to_dict()
     )
+
     mapping_0 = (
         df.dropna(subset=['Brand_cleaned', 'model_cleaned'])
-          .groupby(['Brand_cleaned'])['model_cleaned']
-          .agg(lambda x: x.mode().iloc[0]).to_dict()
+        .groupby(['Brand_cleaned'])['model_cleaned']
+        .agg(lambda x: x.mode().iloc[0]).to_dict()
     )
 
     return mapping_5, mapping_4, mapping_3, mapping_2, mapping_1, mapping_0
+
 
 
 def impute_model_flexible(row, maps):

@@ -93,6 +93,8 @@ class Categorical_Correction(BaseEstimator, TransformerMixin):
 
         # We first correct the 'W' brands which should be either VW or BMW
         # this correction does not depent on params learned from train data:
+        X['Brand'] = X.apply(lambda row: correct_brand_w(X, row['Brand'], row['model']), axis=1)
+        # for cars with no model where correct_brand_w doesn't work:
         X.loc[X['Brand'] == 'W', 'Brand'] = 'VW'
 
         # Remaining typos:
@@ -207,7 +209,6 @@ class Missing_Value_Treatment(BaseEstimator, TransformerMixin):
 
         # Missing MODEL ---------------------------------------------------------------------------------
         self.model_maps_ = build_model_mappings(X)
-        self.model_global_mode_ = X['model_cleaned'].mode().iloc[0]
 
         # Missing YEAR ---------------------------------------------------------------------------------
         self.bins_ = X['mileage'].quantile([0, 0.2, 0.4, 0.6, 0.8, 1]).values
@@ -263,9 +264,6 @@ class Missing_Value_Treatment(BaseEstimator, TransformerMixin):
 
         # Missing MODEL --------------------------------------------------------------------------------
         X['model_cleaned'] = X.apply(lambda row: impute_model_flexible(row, self.model_maps_),axis=1)
-        # If still missing, fall back to the global mode learned in fit (or safe default if absent)
-        fallback_model = getattr(self, 'model_global_mode_', 'UNKNOWN_MODEL')
-        X['model_cleaned'] = X['model_cleaned'].fillna(fallback_model)
 
         # Missing YEAR --------------------------------------------------------------------------------
         X['mileage_bin'] = pd.cut(X['mileage'], bins=self.bins_, labels=self.labels_, include_lowest=True)
@@ -298,10 +296,6 @@ class Missing_Value_Treatment(BaseEstimator, TransformerMixin):
 
         # Missing HASDAMAGE --------------------------------------------------------------------------------
         X['hasDamage'] = X['hasDamage'].fillna(True)
-
-        # Ensure categorical inputs are strings to keep encoders stable
-        X['Brand_cleaned'] = X['Brand_cleaned'].fillna('UNKNOWN_BRAND')
-        X['model_cleaned'] = X['model_cleaned'].fillna('UNKNOWN_MODEL')
 
         return X
 
@@ -383,7 +377,7 @@ class Feature_Engineering(BaseEstimator, TransformerMixin):
         # Average Car Usage
         X['AvgUsage'] = X['mileage'] / (X['carAge'] + 1)
 
-        # Car Segment based on Brand; unseen brands default to 2 (mid-range) to avoid NaN propagating
+        # Car Segment based on Brand
         X['carSegment'] = X['Brand_cleaned'].map(self.segment_).fillna(2)
 
         return X
@@ -597,6 +591,7 @@ class Feature_Selection(BaseEstimator, TransformerMixin):
         X = X[selected_features]
 
         return X
+
 
 
 
