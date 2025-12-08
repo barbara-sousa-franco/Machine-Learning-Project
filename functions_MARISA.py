@@ -419,12 +419,13 @@ def build_model_mappings(df):
     Each mapping uses the model's mode for the given feature combination.
 
     The mappings are built in decreasing order of detail:
-    - mapping_6: Uses Brand, Fuel Type, Engine Size, and Transmission.
-    - mapping_5: Uses Brand, Fuel Type, and Engine Size.
-    - mapping_4: Uses Brand and Fuel Type.
-    - mapping_3: Uses Brand and Transmission.
-    - mapping_2: Uses Brand and Engine Size.
-    - mapping_1: Uses Brand only.
+    - mapping_5: Uses Brand, Fuel Type, Engine Size, and Transmission.
+    - mapping_4: Uses Brand, Fuel Type, and Engine Size.
+    - mapping_3: Uses Brand and Fuel Type.
+    - mapping_2: Uses Brand and Transmission.
+    - mapping_1: Uses Brand and Engine Size.
+    - mapping_0: Uses Brand.
+
     Parameters
     ----------
     df : pandas.DataFrame
@@ -432,44 +433,42 @@ def build_model_mappings(df):
 
     Returns
     -------
-    mapping_6,mapping_5, mapping_4, mapping_3, mapping_2, mapping_1 : dict
+    mapping_5, mapping_4, mapping_3, mapping_2, mapping_1, mapping_0 : dict
         Six dictionaries mapping combinations of features to the most frequent model name.
     """
 
-    mapping_6 = (
+    mapping_5 = (
         df.dropna(subset=['Brand_cleaned', 'model_cleaned', 'fuelType_cleaned', 'engineSize', 'transmission_cleaned'])
           .groupby(['Brand_cleaned', 'fuelType_cleaned', 'engineSize', 'transmission_cleaned'])['model_cleaned']
           .agg(lambda x: x.mode().iloc[0]).to_dict()
     )
-    mapping_5 = (
+    mapping_4 = (
         df.dropna(subset=['Brand_cleaned', 'model_cleaned', 'fuelType_cleaned', 'engineSize'])
           .groupby(['Brand_cleaned', 'fuelType_cleaned', 'engineSize'])['model_cleaned']
           .agg(lambda x: x.mode().iloc[0]).to_dict()
     )
-    mapping_4 = (
+    mapping_3 = (
         df.dropna(subset=['Brand_cleaned', 'model_cleaned', 'fuelType_cleaned'])
           .groupby(['Brand_cleaned', 'fuelType_cleaned'])['model_cleaned']
           .agg(lambda x: x.mode().iloc[0]).to_dict()
     )
-    mapping_3 = (
+    mapping_2 = (
         df.dropna(subset=['Brand_cleaned', 'model_cleaned', 'transmission_cleaned'])
           .groupby(['Brand_cleaned', 'transmission_cleaned'])['model_cleaned']
           .agg(lambda x: x.mode().iloc[0]).to_dict()
     )
-    mapping_2 = (
+    mapping_1 = (
         df.dropna(subset=['Brand_cleaned', 'model_cleaned', 'engineSize'])
           .groupby(['Brand_cleaned', 'engineSize'])['model_cleaned']
           .agg(lambda x: x.mode().iloc[0]).to_dict()
     )
-
-    mapping_1 = (
+    mapping_0 = (
         df.dropna(subset=['Brand_cleaned', 'model_cleaned'])
           .groupby(['Brand_cleaned'])['model_cleaned']
           .agg(lambda x: x.mode().iloc[0]).to_dict()
     )
 
-    return mapping_6,mapping_5, mapping_4, mapping_3, mapping_2, mapping_1
-
+    return mapping_5, mapping_4, mapping_3, mapping_2, mapping_1, mapping_0
 
 
 def impute_model_flexible(row, maps):
@@ -478,9 +477,9 @@ def impute_model_flexible(row, maps):
     Imputes missing 'model_cleaned' values using hierarchical mappings of varying detail.
 
     The function attempts to fill missing model values in a flexible way:
-    1. It first tries the most specific mapping (mapping_6) that uses Brand, Fuel Type, Engine Size, and Transmission.
+    1. It first tries the most specific mapping (mapping_5) that uses Brand, Fuel Type, Engine Size, and Transmission.
     2. If no match is found, it proceeds to less detailed mappings in the following order:
-       mapping_5, mapping_4, mapping_3, mapping_2, mapping_1.
+       mapping_4, mapping_3, mapping_2, mapping_1, mapping_0.
     3. If no mapping contains a match, the original model value is returned.
 
     Parameters
@@ -497,23 +496,23 @@ def impute_model_flexible(row, maps):
         The imputed model name if a match is found in any mapping, or the original 'model_cleaned' value if no match is found.
     """
     
-    mapping_6, mapping_5, mapping_4, mapping_3, mapping_2, mapping_1 = maps
+    mapping_5, mapping_4, mapping_3, mapping_2, mapping_1, mapping_0 = maps
 
     # Try the most specific match first
-    key6 = (row['Brand_cleaned'], row['fuelType_cleaned'], row['engineSize'], row['transmission_cleaned'])
-    key5 = (row['Brand_cleaned'], row['fuelType_cleaned'], row['engineSize'])
-    key4 = (row['Brand_cleaned'], row['fuelType_cleaned'])
-    key3 = (row['Brand_cleaned'], row['transmission_cleaned'])
-    key2 = (row['Brand_cleaned'], row['engineSize'])
-    key1 = (row['Brand_cleaned'])
+    key5 = (row['Brand_cleaned'], row['fuelType_cleaned'], row['engineSize'], row['transmission_cleaned'])
+    key4 = (row['Brand_cleaned'], row['fuelType_cleaned'], row['engineSize'])
+    key3 = (row['Brand_cleaned'], row['fuelType_cleaned'])
+    key2 = (row['Brand_cleaned'], row['transmission_cleaned'])
+    key1 = (row['Brand_cleaned'], row['engineSize'])
+    key0 = (row['Brand_cleaned'])
 
     if pd.isna(row['model_cleaned']):
-        if key6 in mapping_6: return mapping_6[key6]
         if key5 in mapping_5: return mapping_5[key5]
         if key4 in mapping_4: return mapping_4[key4]
         if key3 in mapping_3: return mapping_3[key3]
         if key2 in mapping_2: return mapping_2[key2]
         if key1 in mapping_1: return mapping_1[key1]
+        if key0 in mapping_0: return mapping_0[key0]
     return row['model_cleaned']
 
 
