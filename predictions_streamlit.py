@@ -166,8 +166,8 @@ if method == "Manually write the information":
             
             # CRITICAL: Reorder columns to match the order expected by the pipeline
             # The pipeline was trained with a specific column order
-            df_observation = df_observation[list(necessary_columns)]
-            
+            df_observation = df_observation[necessary_columns]
+            st.dataframe(df_observation)
 
             # predict price
             prediction = model.predict(df_observation)[0] # with [0] we select only the value, otherwise it would be an np.array just with the value
