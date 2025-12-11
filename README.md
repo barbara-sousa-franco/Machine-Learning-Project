@@ -29,8 +29,8 @@ The company Cars 4 You resales cars online. They are struggling with increasing 
 **Feature Engineering:** 3 new features were added:    
 - carAge : 2020 - 'year'
 - AvgUsage : 'mileage' / ('carAge' + 1)
-- carSegment : One of 3 price segments each with increasing average price.
-**Encoder**: Use TargetEncoder() for Brand and model and OneHotEncoder() for fuelType and Transmission
+- carSegment : One of 3 price segments each with increasing average price.  
+**Encoder**: Use TargetEncoder() for Brand and model and OneHotEncoder() for fuelType and Transmission  
 **Scaler**: Different scalling techniques will be applied
   
 
@@ -47,7 +47,7 @@ The number of features selected is one of the parameters testes with the functio
    
 ## **Model Selection and hyperparameter tuning**
 | Model | Parameters | Test MAE | Overfit |  
-|------------------|-------------|  
+|------------------|-------------|------------|--------------|
 | Gradient Boosting |  |  |  
 | Neural Network |  |  |  
 | Random Forest |  |  |  
