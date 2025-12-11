@@ -23,6 +23,17 @@ def preprocess_data(df):
     """
     Apply the same preprocessing steps done in the notebook before feeding to the pipeline.
     This handles invalid/impossible values by converting them to NaN.
+
+    Parameters:
+    -------------------
+    df: pd.DataFrame
+        DataFrame containing the car data to preprocess.
+
+
+    Returns:
+    -------------------
+    df : pd.DataFrame
+        Preprocessed DataFrame with impossible values converted to NaN and standardized formats.
     """
     df = df.copy()
     
@@ -70,7 +81,7 @@ st.title("Predict your car's price")
 method = st.sidebar.radio("How to insert the car information",
                           ["Load a csv file", "Manually write the information"])
 
-# CRITICAL: Column order MUST match the training data order!
+# Define the necessary columns for the model
 necessary_columns = ['Brand', 'model', 'year', 'transmission', 'mileage', 'fuelType', 'tax', 'mpg', 'engineSize', 'previousOwners', 'hasDamage']
 
 
