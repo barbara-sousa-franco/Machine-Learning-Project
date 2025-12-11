@@ -31,8 +31,8 @@ The company Cars 4 You resales cars online. They are struggling with increasing 
 - AvgUsage : 'mileage' / ('carAge' + 1)
 - carSegment : One of 3 price segments each with increasing average price.
 
-**Encoder**: Use TargetEncoder() for Brand and model and OneHotEncoder() for fuelType and Transmission  
-**Scaler**: Different scalling techniques will be applied
+**Encoding**: Use TargetEncoder() for Brand and model and OneHotEncoder() for fuelType and Transmission  
+**Scalling**: Different scalling techniques will be applied
   
 
   ## **Feature Selection**
