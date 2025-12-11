@@ -5,6 +5,7 @@ The company Cars 4 You resales cars online. They are struggling with increasing 
 
 ## **Metadata**
 | Variable | Description |  
+|------------------|-------------|  
 | carID | An attribute that contains an identifier for each car |  
 | Brand | The car’s main brand (e.g. Ford, Toyota) |  
 | model | The car model |  
@@ -42,6 +43,7 @@ The number of features selected is one of the parameters testes with the functio
    
 ## **Model Selection and hyperparameter tuning**
 | Model | Parameters | Test MAE | Overfit |  
+|------------------|-------------|  
 | Gradient Boosting |  |  |  
 | Neural Network |  |  |  
 | Random Forest |  |  |  
