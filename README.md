@@ -30,16 +30,20 @@ The company Cars 4 You resales cars online. They are struggling with increasing 
 - carAge : 2020 - 'year'
 - AvgUsage : 'mileage' / ('carAge' + 1)
 - carSegment : One of 3 price segments each with increasing average price.
+**Encoder**: Use TargetEncoder() for Brand and model and OneHotEncoder() for fuelType and Transmission
+**Scaler**: Different scalling techniques will be applied
+  
 
   ## **Feature Selection**
 
 Firstly, select only the features with variance above 0.01. Then 3 methods are applied  
-- Correlation between the features and the target  
+- Spearman correlation between the features and the target  
 - Recursive Feature Selection (RFE) with Linear Regression  
-- Obtain Decision Tree Feature Importance  
+- Decision Tree Feature Importance  
 
 The feature will be selected if it is selected by at least 2 of these methods.    
 The number of features selected is one of the parameters testes with the function RandomizedSearchCV  
+
    
 ## **Model Selection and hyperparameter tuning**
 | Model | Parameters | Test MAE | Overfit |  
