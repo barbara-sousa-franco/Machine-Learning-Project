@@ -1,18 +1,24 @@
 
-<<<<<<< HEAD
-# This python script contains the all the general functions used in the notebook.
-
-# Imports
+# This python script contains the all the general helper functions used in the notebook.
 
 import pandas as pd
-import numpy as np 
+import numpy as np
 import matplotlib.pyplot as plt
 
-# Import fuzzywuzzy to correct the typos in 'Brand', 'fuelType' snd 'transmission'
+# Import fuzzywuzzy to correct the typos in 'Brand', 'fuelType' and 'transmission'
 from fuzzywuzzy import fuzz
 
 # Import get_close_matches to identify and group similar words for typo correction in 'model'
 from difflib import get_close_matches
+
+# Import cross_validate to evaluate models
+from sklearn.model_selection import cross_validate
+
+# Import to measure execution time in model evaluation
+import time
+
+# Import to test the log price transformation
+from sklearn.compose import TransformedTargetRegressor
 
 
 ###------------------------------------------------------------------------------------------------------------###
@@ -72,18 +78,6 @@ def color_cramervalues(val):
         return 'background-color: lightgreen; color:black; border: 1px solid black;'
     else:
         return 'background-color: lightcoral; color:black; border: 1px solid black;'
-=======
-# This python script contains the functions used in data pre-processing.
-
-#imports
-
-import pandas as pd
-import numpy as np 
-from fuzzywuzzy import fuzz
-from difflib import get_close_matches
-
-
->>>>>>> 3e329d2 (saving work before rebase)
 
 
 ###------------------------------------------------------------------------------------------------------------###
@@ -125,7 +119,6 @@ def correct_brand_w(df, brand, model):
 
             # If the same model is found, then return the corresponding brand
             if isinstance(brand_in_column, str) and model_in_column == model and brand_in_column != 'W':
-                print (brand_in_column)
                 return brand_in_column
             
     # If the brand is not 'W', it remains the same           
@@ -137,27 +130,20 @@ def correct_brand_w(df, brand, model):
 
 
 
-<<<<<<< HEAD
-=======
-# incluí um argumento extra (dataset) para a função não depender exatamente do X_train (este ficheiro não corre caso contrário)
->>>>>>> 3e329d2 (saving work before rebase)
-def create_clusters(df, brand_list, column, threshold=85): 
+def create_clusters(df, unique_words, column, threshold=85): 
       
     """
     Groups similar strings into clusters and creates a mapping to the most frequent name in each cluster.
 
-    The function checks each element in `brand_list` and groups together all elements whose similarity (calculated using fuzz.WRatio) is greater than or equal to `threshold`. 
+    The function checks each element in `unique_words` and groups together all elements whose similarity (calculated using fuzz.WRatio) is greater than or equal to `threshold`. 
     Then, for each cluster, it selects the most common name within that cluster as the representative name, creating a mapping for standardizing the names.
 
     Parameters
     ----------
-<<<<<<< HEAD
     df : pandas.DataFrame
         DataFrame containing the original data.
 
-=======
->>>>>>> 3e329d2 (saving work before rebase)
-    brand_list : list
+    unique_words : list
         List of strings (e.g., brand names) to be clustered.
     
     column : str
@@ -176,25 +162,25 @@ def create_clusters(df, brand_list, column, threshold=85):
     """
     
     clusters = []
-    for brand in brand_list:
+    for word in unique_words:
         found = False
         for cluster in clusters:
             # evaluates if brand is similar to any cluster
-            if any(fuzz.WRatio(str(brand), str(b)) >= threshold for b in cluster):
-                cluster.append(brand)
+            if any(fuzz.WRatio(str(word), str(b)) >= threshold for b in cluster):
+                cluster.append(word)
                 found = True
                 break
         #if it doesn't find a match --> new cluster
         if not found:
-            clusters.append([brand])
+            clusters.append([word])
 
     # Gives the clusters names- chooses the most freq name
     mapping = {}
     counts = df[column].value_counts()
     for cluster in clusters:
         mode = max(cluster, key=lambda x: counts.get(x,0))  #finds the "max" in the cluster according to the key --> mode
-        for brand in cluster:
-            mapping[brand] = str(mode)
+        for word in cluster:
+            mapping[word] = str(mode)
 
     return clusters, mapping
 
@@ -258,13 +244,16 @@ def correct_categorical (mapping, value, threshold=85):
 
 
 
-def similar_models(models, threshold=0.85):
+def similar_models(df, models, threshold=0.85):
 
     '''
     The function will group similar models together based on a similarity threshold, with the goal to identify potential typos.
 
     Parameters
     -----------
+    df : pandas.DataFrame
+        DataFrame containing the original data.
+
     models : List[str]
         List with all the unique elements in the 'model' column
 
@@ -275,6 +264,9 @@ def similar_models(models, threshold=0.85):
     -----------
     similar_groups : List[List[str]]
         A list of lists, where each inner list contains the models that are similar to each other based on the threshold.
+
+    model_mapping : Dict[str, str]
+        A dictionary mapping each model in the train set to its most frequent version.
     '''
 
     # This list, which starts as an empty list, will store the similar groups of strings
@@ -306,20 +298,31 @@ def similar_models(models, threshold=0.85):
             # Add the close matches to the list of similar groups
              similar_groups.append(close_matches)
 
-    return similar_groups
+    # Calculate counts once before the function
+    model_counts = df['model'].value_counts().to_dict()
+
+    # Dictionary to map each model to its correct version
+    model_mapping = {}
+
+    # For loop to go over all the clusters 
+    for group in similar_groups:
+
+        # The best model of each cluster will be the one with the highest count in the train set, it will be added to the correct_models list
+        best_model = max(group, key=lambda x: model_counts.get(x, 0))
+
+        # Map all models in the group to the best model
+        for model in group:
+            model_mapping[model] = best_model
+
+    return similar_groups, model_mapping
 
 
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-<<<<<<< HEAD
-=======
-# inclui model_mapping dict nos argumentos para funcionar
-# incluí lista correct_models para funcionar
->>>>>>> 3e329d2 (saving work before rebase)
 
-def correct_column_model(lis, dict, model, similar_groups, threshold = 0.85):
+def correct_column_model(model, mapping, threshold = 0.85):
 
 
     '''
@@ -329,20 +332,12 @@ def correct_column_model(lis, dict, model, similar_groups, threshold = 0.85):
 
     Parameters
     -----------
-<<<<<<< HEAD
-    lis : List[str]
-        List with all the correct models (most frequent versions in the train set).
-    
-    dict : Dict[str, str]
-        Dictionary mapping each model in the train set to its most frequent version.
 
-=======
->>>>>>> 3e329d2 (saving work before rebase)
     models : String
         The model name to correct.
-
-    similar_groups : List[List[str]]
-        A list of lists, where each inner list contains the models that are similar to each other based on the threshold.
+    
+    mapping : Dict[str, str]
+        Dictionary mapping each model in the train set to its most frequent version.
 
     threshold : float, default = 0.85
         The similarity threshold for grouping models.
@@ -365,20 +360,22 @@ def correct_column_model(lis, dict, model, similar_groups, threshold = 0.85):
         return np.nan
 
     # Transform de list of lists in a unique list with all the values in the sublists
-    similar_groups_flat = [item for sublist in similar_groups if sublist is not None for item in sublist]
+    models_in_train = list(mapping.keys())
 
     # If the model is in similar_groups_flat, then it is in the train set and can be mapped to its correct version
-    if model in similar_groups_flat:
-        return dict[model]
+    if model in models_in_train:
+        return mapping[model]
     
     # If the model has not been seen in the train set, then it will calculate the closest match to the list of correct models
     else:
 
+        correct_models = list(set(mapping.values()))
+
         # Calculate the similarity between model and the correct models, if the one with highest similarity is above the threshold, then return it
-        best_match = get_close_matches(model, lis, n=1, cutoff = threshold)
+        best_match = get_close_matches(model, correct_models, n=1, cutoff = threshold)
 
         # If there is a best match above the threshold, return it
-        if best_match:
+        if best_match != []:
             return best_match[0]
         
         # If there wasnt a match above the threshold, return the original model
@@ -453,6 +450,7 @@ def build_model_mappings(df):
     - mapping_3: Uses Brand and Fuel Type.
     - mapping_2: Uses Brand and Transmission.
     - mapping_1: Uses Brand and Engine Size.
+    - mapping_0: Uses Brand only.
 
     Parameters
     ----------
@@ -461,8 +459,8 @@ def build_model_mappings(df):
 
     Returns
     -------
-    mapping_5, mapping_4, mapping_3, mapping_2, mapping_1 : dict
-        Five dictionaries mapping combinations of features to the most frequent model name.
+    mapping_5, mapping_4, mapping_3, mapping_2, mapping_1, mapping_0 : dict
+        Six dictionaries mapping combinations of features to the most frequent model name.
     """
 
     mapping_5 = (
@@ -491,7 +489,13 @@ def build_model_mappings(df):
           .agg(lambda x: x.mode().iloc[0]).to_dict()
     )
 
-    return mapping_5, mapping_4, mapping_3, mapping_2, mapping_1
+    mapping_0 = (
+        df.dropna(subset=['Brand_cleaned', 'model_cleaned'])
+          .groupby(['Brand_cleaned'])['model_cleaned']
+          .agg(lambda x: x.mode().iloc[0]).to_dict()
+    )
+
+    return mapping_5, mapping_4, mapping_3, mapping_2, mapping_1, mapping_0
 
 
 
@@ -503,7 +507,7 @@ def impute_model_flexible(row, maps):
     The function attempts to fill missing model values in a flexible way:
     1. It first tries the most specific mapping (mapping_5) that uses Brand, Fuel Type, Engine Size, and Transmission.
     2. If no match is found, it proceeds to less detailed mappings in the following order:
-       mapping_4, mapping_3, mapping_2, mapping_1.
+       mapping_4, mapping_3, mapping_2, mapping_1, mapping_0 (Brand only).
     3. If no mapping contains a match, the original model value is returned.
 
     Parameters
@@ -512,7 +516,7 @@ def impute_model_flexible(row, maps):
         Represents an individual row in a pandas DataFrame.
     
     maps : tuple
-        A tuple containing five dictionaries (mapping_5, mapping_4, mapping_3, mapping_2, mapping_1).
+        A tuple containing six dictionaries (mapping_5, mapping_4, mapping_3, mapping_2, mapping_1, mapping_0).
 
     Returns
     -------
@@ -520,7 +524,7 @@ def impute_model_flexible(row, maps):
         The imputed model name if a match is found in any mapping, or the original 'model_cleaned' value if no match is found.
     """
     
-    mapping_5, mapping_4, mapping_3, mapping_2, mapping_1 = maps
+    mapping_5, mapping_4, mapping_3, mapping_2, mapping_1, mapping_0 = maps
 
     # Try the most specific match first
     key5 = (row['Brand_cleaned'], row['fuelType_cleaned'], row['engineSize'], row['transmission_cleaned'])
@@ -528,6 +532,7 @@ def impute_model_flexible(row, maps):
     key3 = (row['Brand_cleaned'], row['fuelType_cleaned'])
     key2 = (row['Brand_cleaned'], row['transmission_cleaned'])
     key1 = (row['Brand_cleaned'], row['engineSize'])
+    key0 = (row['Brand_cleaned'],)
 
     if pd.isna(row['model_cleaned']):
         if key5 in mapping_5: return mapping_5[key5]
@@ -535,6 +540,7 @@ def impute_model_flexible(row, maps):
         if key3 in mapping_3: return mapping_3[key3]
         if key2 in mapping_2: return mapping_2[key2]
         if key1 in mapping_1: return mapping_1[key1]
+        if key0 in mapping_0: return mapping_0[key0]
     return row['model_cleaned']
 
 
@@ -542,9 +548,54 @@ def impute_model_flexible(row, maps):
 
 ### ------- YEAR -------------------------------------------------------------------------------------------------
 
+def build_year_mappings(df):
+
+    """
+    Builds hierarchical mappings to impute missing 'year' values based on mileage, tax and mpg.
+
+    The function creates three mappings of decreasing importance for imputing missing year values:
+    1. mapping_3: Uses mileage binned to the median year.
+    2. mapping_2: Uses only 'tax' to map to the median year.
+    3. mapping_1: Uses only 'mpg' to map to the median year.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The DataFrame used as the basis for constructing the maps.
+
+    Returns
+    -------
+    mapping_3, mapping_2, mapping_1 : dict
+        Three dictionaries mapping feature combinations to the median year value.
+
+    """
 
 
-def impute_year(row, map_mileage, map_tax, map_mpg, global_median):
+    mapping_3 = (
+    df.dropna(subset=['year', 'mileage_bin'])
+      .groupby('mileage_bin')['year']
+      .median()
+      .to_dict()
+    )
+    
+    mapping_2 = (
+        df.dropna(subset=['year', 'tax'])
+        .groupby('tax')['year']
+        .median()
+        .to_dict()
+    )
+
+    mapping_1 = (
+        df.dropna(subset=['year', 'mpg'])
+        .groupby('mpg')['year']
+        .median()
+        .to_dict()
+    )
+    return mapping_3, mapping_2, mapping_1
+
+
+
+def impute_year(row, maps, global_median):
 
     """
     Imputes missing 'year' values based on related features or a global median.
@@ -561,14 +612,8 @@ def impute_year(row, map_mileage, map_tax, map_mpg, global_median):
     row : pandas.Series
         Represents an individual row in a pandas DataFrame.
 
-    map_mileage : dict
-        Dictionary mapping mileage bins to the year's median within each bin.
-
-    map_tax : dict
-        Dictionary mapping tax values to the year's median within each bin.
-
-    map_mpg : dict
-        Dictionary mapping mpg values to the year's median within each bin.
+    maps : tuple
+        A tuple containing three dictionaries (map_mileage, map_tax, map_mpg).
 
     global_median : float
         The global median year.
@@ -577,7 +622,10 @@ def impute_year(row, map_mileage, map_tax, map_mpg, global_median):
     -------
     float
         The imputed year for the row.
+
     """
+
+    map_mileage, map_tax, map_mpg = maps
 
     if pd.isna(row['year']):
         if pd.notna(row['mileage_bin']) and row['mileage_bin'] in map_mileage:
@@ -1160,70 +1208,56 @@ def impute_transmission(row, maps):
         if key1 in mapping_1: return mapping_1[key1]
     return row['transmission_cleaned']
 
-
-<<<<<<< HEAD
 ###------------------------------------------------------------------------------------------------------------###
-###--------------------------- FUNCTIONS TO PERFORM FEATURE SELECTION: ----------------------------------------###
+###--------------------------- FUNCTION FOR ABLATION: -------------------------------------------------------###
 ###------------------------------------------------------------------------------------------------------------###
 
-def plot_importance(coef,name):
+def evaluate(model, X, y, cv, scoring):
 
     """
-    Plots the feature importance as a horizontal bar chart.
-
-    The function sorts the feature coefficients and visualizes them using a horizontal bar plot.
-    This is used to show which features have the most influence on the target variable.
+    Evaluates a regression model using cross-validation and returns
+    aggregated performance metrics for both training and validation sets.
 
     Parameters
     ----------
-    coef : pandas.Series
-        A pandas Series containing the feature coefficients. The index should be the feature names.
-    
-    name : str
-        Name of the model, used for the plot title.
+    model : estimator object
+        Our pipeline with the preprocessing steps and the regressor.
+
+    X : pandas.DataFrame
+        Feature matrix used for training and validation.
+
+    y : pandas.Series
+        Target variable (price).
+
+    cv : cross-validation generator
+        Determines the cross-validation splitting strategy.
+
+    scoring : dict
+        Dictionary defining the scoring metrics to be evaluated during cross-validation.
 
     Returns
     -------
-    None
-        Displays a horizontal bar plot of feature importance.
+    tuple
+        A tuple containing:
+        - train_r2 : float
+            Mean R² score on the training set across all folds.
+        - test_r2 : float
+            Mean R² score on the validation set across all folds.
+        - train_mae : float
+            Mean MAE on the training set across all folds.
+        - test_mae : float
+            Mean MAE on the validation set across all folds.
+        - execution_time : float
+            Mean time taken to fit the model across all folds.
     """
 
-    imp_coef = coef.sort_values()
-    plt.figure(figsize=(6,8))
-    imp_coef.plot(kind = "barh", color='skyblue')
-    plt.title("Feature importance using " + name + " Model")
-    plt.show()
-
-###------------------------------------------------------------------------------------------------------------###
-###--------------------------- FUNCTIONS FROM MODELING: -------------------------------------------------------###
-###------------------------------------------------------------------------------------------------------------###
-
-def adjusted_r2 (r2,n,p):
-
-    """
-    Calculates the adjusted R-squared for a regression model. Adjusted R-squared adjusts the standard R-squared value based on the number of predictors 
-    in the model, penalizing for including variables that do not improve the model fit.
-
-    Parameters
-    ----------
-    r2 : float
-        The R-squared value of the model.
+    results = cross_validate(model, X, y, cv=cv, scoring=scoring, n_jobs=-1, return_train_score=True) # n_jobs=-1 to use all processors
     
-    n : int
-        The number of observations in the dataset.
-    
-    p : int
-        The number of predictors/features in the model.
+    test_r2 = np.mean(results['test_R2'])
+    test_mae = -np.mean(results['test_MAE'])  # Negative because MAE is negative in scoring
+    train_r2 = np.mean(results['train_R2'])
+    train_mae = -np.mean(results['train_MAE'])
+    execution_time = np.mean(results['fit_time'])
 
-    Returns
-    -------
-    float
-        The adjusted R-squared value.
-    """
-
-    return 1-(1-r2)*(n-1)/(n-p-1)
-=======
-
-
->>>>>>> 3e329d2 (saving work before rebase)
+    return train_r2, test_r2, train_mae, test_mae, execution_time
 
