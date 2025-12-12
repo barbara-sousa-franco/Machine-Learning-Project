@@ -111,16 +111,15 @@ class Categorical_Correction(BaseEstimator, TransformerMixin):
         X['Brand_cleaned'] = X['Brand'].apply(lambda x: correct_categorical(self.mapping_brand_, x))
 
         # TRANSMISSION---------------------------------------------------------------------------------------
+        X['transmission_cleaned'] = X['transmission'].apply(lambda x: correct_categorical(self.mapping_transmission_, x))
 
-        X['transmission_cleaned'] = X['transmission'].apply(
-            lambda x: correct_categorical(self.mapping_transmission_, x))
+        X.loc[X['transmission_cleaned'] == 'UNKNOWN', 'transmission_cleaned'] = np.nan
 
         # FUELTYPE ------------------------------------------------------------------------------------------
         X['fuelType_cleaned'] = X['fuelType'].apply(lambda x: correct_categorical(self.mapping_fueltype_, x))
 
         # MODEL ---------------------------------------------------------------------------------------------
-        X['model_cleaned'] = X['model'].apply(
-            lambda x: correct_column_model(x, self.mapping_model_))
+        X['model_cleaned'] = X['model'].apply(lambda x: correct_column_model(x, self.mapping_model_))
         
         #After analyzing the data (EDA), we noticed that after corrections, one model was associated with two brands. We will manually fix this error:
         X.loc[(X['model_cleaned']=='I3') & (X['Brand_cleaned'] == 'HYUNDAI'), 'model_cleaned'] == 'I30'
