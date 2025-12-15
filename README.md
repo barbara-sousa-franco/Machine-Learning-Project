@@ -60,7 +60,7 @@ The number of features selected is one of the parameters testes with the functio
 ## **Ablation Study**
 
 ## **Feature Importance**
-
+According to the Feature Importance Analysis, there were 5 features that have significant importance for the model performance. From the Feature Importance we were able to see that the feature importance obtained from SHAP values is similar to the one obtain by feature_importances_ attribute of the Gradient Boosting Regressor. The features that contribute the most for the predictions are:  model_cleaned_encoded, transmission_cleaned_MANUAL, year, carAge, engineSize and mileage, in descending order. The features selected during feature selection contain all the ones that have a bigger contribution on the predictions.
 
 ## **Predictions interface**
 Users can submit a csv file with the car's information or they can manually insert that information. The interface uses the final model to calculate the predictions.  
