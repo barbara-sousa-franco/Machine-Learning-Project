@@ -45,6 +45,7 @@ warnings.filterwarnings('ignore')
 # 10. Simplified_Categorical_Correction
 # 11. Simplified_Missing_Value_Treatment
 # 12. Simplified_Encode
+# 13. Identity_Feature_Importance
 
 
 
@@ -858,4 +859,35 @@ class Simplified_Encode (BaseEstimator, TransformerMixin):
 
         X = X.drop(self.categorical_, axis=1)
 
+        return X
+    
+
+#------------ Feature Importance Helper Class -----------------------------------------------------
+
+class Identity_Feature_Importance(BaseEstimator, TransformerMixin):
+
+    """
+    This transformer serves as a helper class for the feature importance section. It returns the dataframe 
+    with the features selected in that section. 
+
+    -----------------------------
+
+    Parameters:
+    - None
+    """
+
+    def __init__(self):
+        self.features_selected = ['model_cleaned_encoded', 'engineSize', 'transmission_cleaned_MANUAL','year',
+                                'carAge','mileage']
+    
+    def fit (self, X, y=None):
+        return self
+    
+    def transform (self, X):
+        X = X.copy()
+
+        if not isinstance(X, pd.DataFrame):
+            X = pd.DataFrame(X)
+            X = X[self.features_selected]
+            
         return X

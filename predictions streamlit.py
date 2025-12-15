@@ -11,12 +11,8 @@ random_state = 42
 
 
 # Carregar modelo
-model = joblib.load("modelo_mlp_teste.pkl")
+model = joblib.load("final_model.pkl")
 
-# Verify model has 6 mappings (DEBUG - updated Dec 8, 2025)
-mvt_step = model.named_steps['missing value treatment']
-num_mappings = len(mvt_step.model_maps_)
-st.sidebar.write(f"🔧 Model mappings: {num_mappings}")
 
 
 def preprocess_data(df):
@@ -145,7 +141,7 @@ if method == "Manually write the information":
     feature_values = {}
     st.write("Insert the values for each feature")
 
-
+    # Ask for user input for each feature
     for feat in observation.columns:
         if feat in numeric_features:
             if feat == 'hasDamage':
