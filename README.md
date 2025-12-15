@@ -47,17 +47,36 @@ The number of features selected is one of the parameters testes with the functio
 
    
 ## **Model Selection and hyperparameter tuning**
-| Model | Parameters | Test MAE | Overfit |  
-|------------------|-------------|------------|--------------|
-| Gradient Boosting |  |  |  
-| Neural Network |  |  |  
-| Random Forest |  |  |  
-| K Nearest Neighbors |  |  |  
-| Decision Tree |  |  |  
-| Huber Regressor |  |  |  
-| Linear Regression |  |  |  
+| Model | Parameters | Test MAE | Overfit (%) |  
+|-------------------|---------|---------------|-------------|
+| GradientBoosting   | True    | 1346.783091   | 6.689326    |
+| RandomForest       | False   | 1355.735228   | 13.974068   |
+| MLP_adam           | False   | 1426.602219   | 17.712090   |
+| KNN                | True    | 1528.286795   | 7.612548    |
+| Decision Tree      | False   | 1701.438878   | 15.540444   |
+| Huber              | False   | 2518.077855   | 0.188716    |
+
+The best model is Gradient Boosting, it achieves the best test score and has low percentage of overfit
+
 
 ## **Ablation Study**
+
+In this section we analyse the imporatance of each step of the pipeline by removing or replacing it by a basic approach while maintaining the other steps constant.
+
+| Step | Step Tested               | Test MAE | Execution Time (s) | Overfit MAE | Delta |
+|------|---------------------------|----------|--------------------|-------------|--------|
+| 0    | `Full Pipeline`           | 1344.344522 | 149.333922 | 1.066628 | 0.000000 |
+| 1    | `categorical treatment`   | 1401.119986 | 164.941620 | 1.069398 | 56.775464 |
+| 2    | `outlier treatment`       | 1431.386469 | 166.268776 | 1.059067 | 87.041948 |
+| 3    | `missing value treatment` | 1397.294585 | 119.356688 | 1.075345 | 52.950064 |
+| 4    | `typecasting`             | 1346.296980 | 212.374082 | 1.066778 | 1.952458 |
+| 5    | `feature engineering`     | 1350.250382 | 234.684779 | 1.070611 | 5.905860 |
+| 6    | `encoder`                 | 1773.838641 | 278.422422 | 1.061655 | 429.494119 |
+| 7    | `scaler`                  | 1439.989006 | 206.957186 | 1.065673 | 95.644484 |
+| 8    | `feature selection`       | 1350.983491 | 210.098535 | 1.078840 | 6.638969 |
+
+Delta represents the difference betweeen the test score of the full pipeline and the one of the current step. Clearly the encoder step is the most important one, followed by the scaler and outlier treatment. All the preprocesing steps and feature selection are crucial since the best score achieved is with the full pipeline.
+
 
 ## **Feature Importance**
 According to the Feature Importance Analysis, there were 5 features that have significant importance for the model performance. From the Feature Importance we were able to see that the feature importance obtained from SHAP values is similar to the one obtain by feature_importances_ attribute of the Gradient Boosting Regressor. The features that contribute the most for the predictions are:  model_cleaned_encoded, transmission_cleaned_MANUAL, year, carAge, engineSize and mileage, in descending order. The features selected during feature selection contain all the ones that have a bigger contribution on the predictions.
